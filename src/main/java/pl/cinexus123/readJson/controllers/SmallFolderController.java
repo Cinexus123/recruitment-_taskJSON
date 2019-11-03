@@ -19,10 +19,10 @@ public class SmallFolderController {
         this.readJsonService = readJsonService;
     }
 
-    @GetMapping("/query={query}")
-    public List<String> getAppropriateContentFolders(@PathVariable("query") String query) {
-        log.info("Search word: " + query);
-        return this.readJsonService.findAppropriateContentFolders(query);
+    @GetMapping("/query={query}&skip={skip}&limit={limit}")
+    public List<String> getAppropriateContentFolders(@PathVariable("query") String query,@PathVariable("skip") Integer skip,@PathVariable("limit") Integer limit) {
+        log.info("Search word: " + query + "with skip: " + skip + "and limit: " + limit);
+        return this.readJsonService.findAppropriateContentFolders(query, skip, limit);
     }
 
     @GetMapping("/listFolders")

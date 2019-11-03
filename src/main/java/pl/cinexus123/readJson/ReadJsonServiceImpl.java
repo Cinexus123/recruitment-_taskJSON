@@ -2,6 +2,7 @@ package pl.cinexus123.readJson;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -20,7 +21,7 @@ import java.util.stream.Stream;
 public class ReadJsonServiceImpl implements  ReadJsonService {
 
     @Override
-    public List<String> findAppropriateContentFolders(String query) {
+    public List<String> findAppropriateContentFolders(String query, Integer skip, Integer limit) {
         String JsonContent = readLineByLineJava8();
 
         //find appropriate name folders
@@ -31,9 +32,10 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
             listFolders.add(m.group(0));
 
         List<String> content = new ArrayList<>();
+        int counter = 0; //variable to observe save limit
         for(String name : listFolders) {
             if((name.trim().contains(query))) {
-                int count = 0; //variable which count correct copying []
+                int skipCount = 0; //
                 for (int i = 0; i < JsonContent.length() ; i++) {
                     i = JsonContent.indexOf(query, i); //what look for and where to start find this phrase
                     if(i < 0)
@@ -41,15 +43,31 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
                     String contentFolder = (JsonContent.substring(i));
                     if(!query.equals("assets")) {
                         String link = contentFolder.split("],")[0];
-                        String add = "],";
-                        link = link + add;
-                        content.add(link);
+                        skipCount++;
+                        if(skipCount > skip)
+                        {
+                            String add = "],";
+                            link = link + add;
+                            content.add(link);
+                            counter++;
+                            if(counter >= limit)
+                                return content;
+                        }
+
                     }
                     if(query.equals("assets")) {
                        String link = contentFolder.split("]\n")[0];
-                        String add = "]";
-                       link = link + add;
-                       content.add(link);
+                       skipCount++;
+                       if(skipCount > skip)
+                       {
+                           String add = "]";
+                           link = link + add;
+                           content.add(link);
+                           counter++;
+                           if(counter >= limit)
+                               return content;
+                       }
+
                     }
 
                 }
