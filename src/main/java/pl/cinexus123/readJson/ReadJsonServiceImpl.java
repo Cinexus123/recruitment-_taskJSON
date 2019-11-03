@@ -33,13 +33,24 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
         List<String> content = new ArrayList<>();
         for(String name : listFolders) {
             if((name.trim().contains(query))) {
+                int count = 0; //variable which count correct copying []
                 for (int i = 0; i < JsonContent.length() ; i++) {
-                    i = JsonContent.indexOf(query, i); //co ma szukać i od którego miejsca
+                    i = JsonContent.indexOf(query, i); //what look for and where to start find this phrase
                     if(i < 0)
                         break;
                     String contentFolder = (JsonContent.substring(i));
-                    String link = contentFolder.split("],")[0];
-                    content.add(link);
+                    if(!query.equals("assets")) {
+                        String link = contentFolder.split("],")[0];
+                        String add = "],";
+                        link = link + add;
+                        content.add(link);
+                    }
+                    if(query.equals("assets")) {
+                       String link = contentFolder.split("]\n")[0];
+                        String add = "]";
+                       link = link + add;
+                       content.add(link);
+                    }
 
                 }
             }
