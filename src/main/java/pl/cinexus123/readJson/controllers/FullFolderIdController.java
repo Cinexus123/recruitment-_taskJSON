@@ -18,7 +18,13 @@ public class FullFolderIdController {
 
     @GetMapping("/GET/{folderId}")
     public List<String> getFullIdFolder(@PathVariable("folderId") String folderId) {
-        log.info("Search word: " + folderId);
+        log.info("Search folder with ID: " + folderId);
         return this.readJsonService.getFullIdFolder(folderId);
+    }
+    // change path to endpoint
+    @GetMapping("/GET/name/{path}")
+    public List<String> getFullPathFolder(@PathVariable("path") String path) {
+        log.info("Search folder with path: " + path);
+        return this.readJsonService.getFullPathFolder(path);
     }
 }
