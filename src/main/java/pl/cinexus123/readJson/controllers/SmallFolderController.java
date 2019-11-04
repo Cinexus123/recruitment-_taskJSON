@@ -25,7 +25,7 @@ public class SmallFolderController {
         return this.readJsonService.findAppropriateContentFolders(query, skip, limit);
     }
 
-    @GetMapping("/")
+    @GetMapping("/listFolders")
     public Set<String> getListAvailableFolders() {
         log.info("Search list of available folders");
         return this.readJsonService.findAllAvailableFolders();

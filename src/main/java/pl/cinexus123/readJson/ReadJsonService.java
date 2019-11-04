@@ -7,8 +7,8 @@ public interface ReadJsonService {
     List<String> findAppropriateContentFolders(String query, Integer skip, Integer limit);
     Set<String> findAllAvailableFolders();
 
-    List<String> getFullIdFolder(String folderId);
-    List<String> getFullPathFolder(String path);
+    List<String> getFullIdFolder(String folderId, String type, Integer skip,Integer limit);
 
     List<String> getFullListFolderInformation(String query, Integer skip, Integer limit);
+    List<String> getFullListFolders();
 }

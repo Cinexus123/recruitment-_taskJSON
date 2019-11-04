@@ -92,30 +92,24 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
     //Second part of the task
     //TO DO
     @Override
-    public List<String> getFullIdFolder(String folderId) {
+    public List<String> getFullIdFolder(String folderId, String type, Integer skip, Integer limit) {
         String JsonContent = readLineByLineJava8();
         List<String> content = new ArrayList<>();
 
-        //.*?\W+"id\": \"[0-9]+\"       copy id and line before
-        Pattern p = Pattern.compile("id\": \"[0-9]+\"");
+        int lengthFolderId = folderId.length();
+        String pattern ="\"id\\\": \\\"[0-9]+\\\"";
+        Pattern p = Pattern.compile(pattern);
         Matcher m = p.matcher(JsonContent);
         while(m.find())
-            content.add(m.group(0));
-//        for (int i = 0; i < JsonContent.length() ; i++) {
-//            i = JsonContent.indexOf(folderId,i);
-//            if(i < 0)
-//                break;
-//            String contentFolder = (JsonContent.substring(i));
-//            String link = contentFolder.split("],")[0];
-//            content.add(link);
+        {
+            String idValue = m.group(0).replaceAll("\\D+","");
+            int lengthIdValue = idValue.length();
 
-//        }
+          if(m.group(0).contains(folderId) && lengthFolderId == lengthIdValue)
+                content.add(m.group(0));
+        }
+
         return content ;
-    }
-
-    @Override
-    public List<String> getFullPathFolder(String path) {
-        return null;
     }
 
 
@@ -143,7 +137,7 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
             if(m.group(0).contains(query1)) {
                 skipCounter++;
                 if (skipCounter > skip) {
-
+                    //Bug with limit value 0  TO DO   <---------------------------------------------
                     listFolders.add(m.group(0));
                     counter++;
                     if (counter >= limit)
@@ -151,7 +145,19 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
                 }
             }
         }
+        return listFolders;
+    }
 
+    @Override
+    public List<String> getFullListFolders() {
+        String JsonContent = readLineByLineJava8();
+        List<String> listFolders = new ArrayList<>();
+
+        String code = ".*?\\W+\"id\\\": \\\"[0-9]+\\\"";
+        Pattern p = Pattern.compile(code);
+        Matcher m = p.matcher(JsonContent);
+        while (m.find())
+            listFolders.add(m.group(0));
 
         return listFolders;
     }

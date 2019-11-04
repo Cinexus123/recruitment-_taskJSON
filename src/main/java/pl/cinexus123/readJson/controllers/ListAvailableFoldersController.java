@@ -21,4 +21,10 @@ public class ListAvailableFoldersController {
         log.info("Search folder with query: " + query + " skip " + skip + "limit " +limit);
         return this.readJsonService.getFullListFolderInformation(query,skip,limit);
     }
+    @GetMapping("/")
+    public List<String> getFullIdFolder() {
+        log.info("Return full list of folders");
+        return this.readJsonService.getFullListFolders();
+    }
 }
+

@@ -16,15 +16,11 @@ public class FullFolderIdController {
 
     public FullFolderIdController(ReadJsonService readJsonService) {this.readJsonService = readJsonService;}
 
-    @GetMapping("/GET/{folderId}")
-    public List<String> getFullIdFolder(@PathVariable("folderId") String folderId) {
-        log.info("Search folder with ID: " + folderId);
-        return this.readJsonService.getFullIdFolder(folderId);
+    @GetMapping("/GET/{folderId}&type={type}&skip={skip}&limit={limit}")
+    public List<String> getFullIdFolder(@PathVariable("folderId") String folderId,@PathVariable("type") String type,
+                                        @PathVariable("skip") Integer skip,@PathVariable("limit") Integer limit) {
+        log.info("Search folder with ID: " + folderId + " type: " + type + " skip: " + skip +" limit: " + limit);
+        return this.readJsonService.getFullIdFolder(folderId,type,skip,limit);
     }
-    // change path to endpoint
-    @GetMapping("/GET/name/{path}")
-    public List<String> getFullPathFolder(@PathVariable("path") String path) {
-        log.info("Search folder with path: " + path);
-        return this.readJsonService.getFullPathFolder(path);
-    }
+
 }
