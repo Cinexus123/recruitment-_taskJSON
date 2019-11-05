@@ -2,7 +2,6 @@ package pl.cinexus123.readJson;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -90,26 +89,37 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
     }
 
     //Second part of the task
-    //TO DO
     @Override
-    public List<String> getFullIdFolder(String folderId, String type, Integer skip, Integer limit) {
+    public String getFullIdFolder(String folderId, String type, Integer skip, Integer limit) {
         String JsonContent = readLineByLineJava8();
         List<String> content = new ArrayList<>();
+        List<String> foldersContent = new ArrayList<>();
 
-        int lengthFolderId = folderId.length();
         String pattern ="\"id\\\": \\\"[0-9]+\\\"";
         Pattern p = Pattern.compile(pattern);
         Matcher m = p.matcher(JsonContent);
         while(m.find())
         {
             String idValue = m.group(0).replaceAll("\\D+","");
-            int lengthIdValue = idValue.length();
-
-          if(m.group(0).contains(folderId) && lengthFolderId == lengthIdValue)
-                content.add(m.group(0));
+                content.add(idValue);
         }
 
-        return content ;
+        for (int i = 0; i < JsonContent.length() ; i++) {
+            i = JsonContent.indexOf("\n  \"//test-path", i); //what look for and where to start find this phrase
+            if (i < 0)
+                break;
+            String contentFolder = (JsonContent.substring(i));
+            String link ="{" + contentFolder.split(" },\n  \"//test-path/CloudUX1")[0];
+            link = link + " },\n}";
+            foldersContent.add(link);
+        }
+        //Small bug with }, } in index 16
+        for (int i = 0; i < content.size() ; i++) {
+
+            if(content.get(i).contains(folderId) && content.get(i).length() == folderId.length())
+                return foldersContent.get(i);
+        }
+        return "folder with provided ID not found";
     }
 
 
@@ -121,11 +131,10 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
         List<String> listFolders = new ArrayList<>();
 
         String add = "\"";
-        String add1 =" \"id\": \"";
-        String query1 = "";
+        String query1 = " \"id\": \"";
         if(query.matches("[0-9]+"))
         {
-            query1= add1 + query + add;
+            query1= query + add;
         }
         int counter = 0; // variable which count elements in list
         int skipCounter = 0; // variable which count skip element
@@ -134,16 +143,32 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
         Matcher m = p.matcher(JsonContent);
         while (m.find())
         {
-            if(m.group(0).contains(query1)) {
-                skipCounter++;
-                if (skipCounter > skip) {
-                    //Bug with limit value 0  TO DO   <---------------------------------------------
-                    listFolders.add(m.group(0));
-                    counter++;
-                    if (counter >= limit)
-                        return listFolders;
+            if (counter >= limit)
+                return listFolders;
+
+            if(query.length() < 4)
+            {
+                //Bug with contains in endpoint 4 in result 4 and 14
+                if(m.group(0).contains(query1)) {
+                    skipCounter++;
+                    if (skipCounter > skip) {
+                        listFolders.add(m.group(0));
+                        counter++;
+                    }
                 }
             }
+
+            if(query.length() >= 4)
+            {
+                if(m.group(0).contains(query)) {
+                    skipCounter++;
+                    if (skipCounter > skip) {
+                        listFolders.add(m.group(0));
+                        counter++;
+                    }
+                }
+            }
+
         }
         return listFolders;
     }

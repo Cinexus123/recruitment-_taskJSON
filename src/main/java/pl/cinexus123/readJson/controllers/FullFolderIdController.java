@@ -17,7 +17,7 @@ public class FullFolderIdController {
     public FullFolderIdController(ReadJsonService readJsonService) {this.readJsonService = readJsonService;}
 
     @GetMapping("/GET/{folderId}&type={type}&skip={skip}&limit={limit}")
-    public List<String> getFullIdFolder(@PathVariable("folderId") String folderId,@PathVariable("type") String type,
+    public String getFullIdFolder(@PathVariable("folderId") String folderId,@PathVariable("type") String type,
                                         @PathVariable("skip") Integer skip,@PathVariable("limit") Integer limit) {
         log.info("Search folder with ID: " + folderId + " type: " + type + " skip: " + skip +" limit: " + limit);
         return this.readJsonService.getFullIdFolder(folderId,type,skip,limit);
