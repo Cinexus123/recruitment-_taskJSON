@@ -18,7 +18,7 @@ public class ListAvailableFoldersController {
 
     @GetMapping("/query={query}&skip={skip}&limit={limit}")
     public List<String> getFullIdFolder(@PathVariable("query") String query, @PathVariable("skip") Integer skip, @PathVariable("limit") Integer limit) {
-        log.info("Search folder with query: " + query + " skip " + skip + "limit " +limit);
+        log.info("Search folder with query: " + query + " skip " + skip + " limit " +limit);
         return this.readJsonService.getFullListFolderInformation(query,skip,limit);
     }
     @GetMapping("/")

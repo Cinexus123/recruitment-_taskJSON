@@ -75,6 +75,7 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
         }
         return content;
     }
+
     @Override
     public Set<String> findAllAvailableFolders() {
         String JsonContent = readLineByLineJava8();
@@ -101,7 +102,7 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
         while(m.find())
         {
             String idValue = m.group(0).replaceAll("\\D+","");
-                content.add(idValue);
+            content.add(idValue);
         }
 
         for (int i = 0; i < JsonContent.length() ; i++) {
@@ -113,9 +114,7 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
             link = link + " },\n}";
             foldersContent.add(link);
         }
-        //Small bug with }, } in index 16
         for (int i = 0; i < content.size() ; i++) {
-
             if(content.get(i).contains(folderId) && content.get(i).length() == folderId.length())
                 return foldersContent.get(i);
         }
@@ -132,11 +131,10 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
 
         String add = "\"";
         String query1 = " \"id\": \"";
+
         if(query.matches("[0-9]+"))
-        {
             query1= query + add;
-        }
-        int queryLen = query1.length();
+
         int counter = 0; // variable which count elements in list
         int skipCounter = 0; // variable which count skip element
         String code = ".*?\\W+\"id\\\": \\\"[0-9]+\\\"";
@@ -198,7 +196,7 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
     private static String readLineByLineJava8()
     {
         StringBuilder contentBuilder = new StringBuilder();
-        String filePath = "C:/Users/Marcin/Downloads/readJson/readJson/src/main/resources/json/data.json/";
+        String filePath = "data.json";
 
         try (Stream<String> stream = Files.lines( Paths.get(filePath), StandardCharsets.UTF_8))
         {
