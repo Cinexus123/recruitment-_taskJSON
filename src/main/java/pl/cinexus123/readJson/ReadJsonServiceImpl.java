@@ -136,6 +136,7 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
         {
             query1= query + add;
         }
+        int queryLen = query1.length();
         int counter = 0; // variable which count elements in list
         int skipCounter = 0; // variable which count skip element
         String code = ".*?\\W+\"id\\\": \\\"[0-9]+\\\"";
@@ -145,20 +146,25 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
         {
             if (counter >= limit)
                 return listFolders;
-
-            if(query.length() < 4)
+            int number = 0;
+            if(query.matches("[0-9]+"))
             {
-                //Bug with contains in endpoint 4 in result 4 and 14
                 if(m.group(0).contains(query1)) {
+                 String zmienna = m.group(0);
+                 Integer zmienna1 = zmienna.lastIndexOf(query);
+                 if(Character.isDigit(zmienna.charAt(zmienna1 - 1)) || query.length() == 2)
+                     number = 2;
+                 else
+                     number = 1;
+
                     skipCounter++;
-                    if (skipCounter > skip) {
+                    if (skipCounter > skip && query.length() == number) {
                         listFolders.add(m.group(0));
                         counter++;
                     }
                 }
             }
-
-            if(query.length() >= 4)
+            if(query.length() >= 3)
             {
                 if(m.group(0).contains(query)) {
                     skipCounter++;
