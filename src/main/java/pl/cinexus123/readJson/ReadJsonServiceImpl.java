@@ -7,10 +7,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -52,7 +49,6 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
                             if(counter >= limit)
                                 return content;
                         }
-
                     }
                     if(query.equals("assets")) {
                        String link = contentFolder.split("]\n")[0];
@@ -80,7 +76,6 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
     public Set<String> findAllAvailableFolders() {
         String JsonContent = readLineByLineJava8();
         Set<String> listFolders = new TreeSet<>();
-
         Pattern p = Pattern.compile("(\\w+)[\\w-](\\w+)\\W+\\[" );
         Matcher m = p.matcher(JsonContent);
         while (m.find())
@@ -95,6 +90,18 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
         String JsonContent = readLineByLineJava8();
         List<String> content = new ArrayList<>();
         List<String> foldersContent = new ArrayList<>();
+        Boolean access = false;
+        String finalResult = "";
+        List<String> list = Arrays.asList(new String[]{"masterclip","subclip", "sequence","group"}); //filemob not found
+        String name = "";
+        List<String> partWithBase = new ArrayList<>();
+        for(String nameType : list)
+        {
+            if(nameType.equals(type))
+                access = true;
+        }
+        if(access == false)
+            return "folder with provided type not found";
 
         String pattern ="\"id\\\": \\\"[0-9]+\\\"";
         Pattern p = Pattern.compile(pattern);
@@ -114,9 +121,43 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
             link = link + " },\n}";
             foldersContent.add(link);
         }
+
+        String uniqueCode =".\\W.*?\\W+.*?\\W+\"assets\\\": \\W";
+        int counter = 0; //variable which count base occurance in string
+
         for (int i = 0; i < content.size() ; i++) {
             if(content.get(i).contains(folderId) && content.get(i).length() == folderId.length())
-                return foldersContent.get(i);
+            {
+                Pattern u = Pattern.compile("base");
+                Matcher z = u.matcher(foldersContent.get(i));
+                Pattern code = Pattern.compile(uniqueCode);
+                Matcher findHeader = code.matcher(foldersContent.get(i));
+
+                while (z.find())
+                    counter++;
+
+                while(findHeader.find())
+                    name = findHeader.group(0);
+                for (int w = 0; w < foldersContent.get(i).length() ; w++) {
+                    w = foldersContent.get(i).indexOf("attributes", w); //what look for and where to start find this phrase
+                    if (w < 0)
+                        break;
+                    String contentFolder = (foldersContent.get(i).substring(w));
+                    String add = "\n      {\n"+ "       " + "\"" +contentFolder;
+                    String split =".+\\n        \\\"attributes\\\"";
+                    String link = add.split(split)[0];
+                    partWithBase.add(link);
+                }
+                String value1 = "";
+                value1 = "\"type\":" + " " + "\"" +type + "\"";
+                for(String element : partWithBase)
+                {
+                    if(element.contains(value1))
+                        finalResult += element;
+                }
+                name += finalResult;
+                return name;
+            }
         }
         return "folder with provided ID not found";
     }
@@ -166,6 +207,7 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
             {
                 if(m.group(0).contains(query)) {
                     skipCounter++;
+
                     if (skipCounter > skip) {
                         listFolders.add(m.group(0));
                         counter++;
@@ -180,6 +222,7 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
     @Override
     public List<String> getFullListFolders() {
         String JsonContent = readLineByLineJava8();
+
         List<String> listFolders = new ArrayList<>();
 
         String code = ".*?\\W+\"id\\\": \\\"[0-9]+\\\"";
