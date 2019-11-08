@@ -124,7 +124,8 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
 
         String uniqueCode =".\\W.*?\\W+.*?\\W+\"assets\\\": \\W";
         int counter = 0; //variable which count base occurance in string
-
+        int skipValue = 0; // variable which count skip
+        int limitValue = 0; // variable which count limit value
         for (int i = 0; i < content.size() ; i++) {
             if(content.get(i).contains(folderId) && content.get(i).length() == folderId.length())
             {
@@ -138,6 +139,7 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
 
                 while(findHeader.find())
                     name = findHeader.group(0);
+
                 for (int w = 0; w < foldersContent.get(i).length() ; w++) {
                     w = foldersContent.get(i).indexOf("attributes", w); //what look for and where to start find this phrase
                     if (w < 0)
@@ -153,8 +155,21 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
                 for(String element : partWithBase)
                 {
                     if(element.contains(value1))
-                        finalResult += element;
+                    {
+                        skipValue++;
+
+                        if(skipValue > skip)
+                        {
+                            limitValue++;
+                            if(limitValue <= limit)
+                                finalResult += element;
+                        }
+
+                    }
+
                 }
+                if(finalResult.isEmpty())
+                    return "folder with provided type not found";
                 name += finalResult;
                 return name;
             }
