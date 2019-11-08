@@ -9,6 +9,6 @@ public interface ReadJsonService {
 
     String getFullIdFolder(String folderId, String type, Integer skip, Integer limit);
 
-    List<String> getFullListFolderInformation(String query, Integer skip, Integer limit);
-    List<String> getFullListFolders();
+    String getFullListFolderInformation(String query, Integer skip, Integer limit);
+    String getFullListFolders();
 }

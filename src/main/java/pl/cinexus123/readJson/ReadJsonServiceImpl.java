@@ -16,6 +16,8 @@ import java.util.stream.Stream;
 @Service
 public class ReadJsonServiceImpl implements  ReadJsonService {
 
+    //Additional task done at the start
+    //I misunderstood the task order (maybe an additional feature ???)
     @Override
     public List<String> findAppropriateContentFolders(String query, Integer skip, Integer limit) {
         String JsonContent = readLineByLineJava8();
@@ -72,6 +74,8 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
         return content;
     }
 
+    //Additional task done at the start
+    //I misunderstood the task order (maybe an additional feature ???)
     @Override
     public Set<String> findAllAvailableFolders() {
         String JsonContent = readLineByLineJava8();
@@ -83,6 +87,7 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
 
         return listFolders;
     }
+
 
     //Second part of the task
     @Override
@@ -139,16 +144,17 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
 
                 while(findHeader.find())
                     name = findHeader.group(0);
-
+                int countText = 0;
                 for (int w = 0; w < foldersContent.get(i).length() ; w++) {
                     w = foldersContent.get(i).indexOf("attributes", w); //what look for and where to start find this phrase
                     if (w < 0)
                         break;
-                    String contentFolder = (foldersContent.get(i).substring(w));
-                    String add = "\n      {\n"+ "       " + "\"" +contentFolder;
-                    String split =".+\\n        \\\"attributes\\\"";
-                    String link = add.split(split)[0];
-                    partWithBase.add(link);
+
+                        String contentFolder = (foldersContent.get(i).substring(w));
+                        String add = "      {\n" + "       " + "\"" + contentFolder;
+                        String split = ".+\\n        \\\"attributes\\\"";
+                        String link = add.split(split)[0];
+                        partWithBase.add(link);
                 }
                 String value1 = "";
                 value1 = "\"type\":" + " " + "\"" +type + "\"";
@@ -156,8 +162,10 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
                 {
                     if(element.contains(value1))
                     {
+                        countText++;
                         skipValue++;
-
+                        if(countText <= 1)
+                            element = "\n" + element;
                         if(skipValue > skip)
                         {
                             limitValue++;
@@ -171,7 +179,7 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
                 if(finalResult.isEmpty())
                     return "folder with provided type not found";
                 name += finalResult;
-                String add = "    ]\n" + "  },\n" + "}";
+                String add = "    ]\n" + "  } \n" + "}";
                 String endResult1 = name.substring(name.length() - 3, name.length());
                 if(endResult1.contains("},"))
                 {
@@ -189,7 +197,7 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
 
     //Main functionality(first task)
     @Override
-    public List<String> getFullListFolderInformation(String query, Integer skip, Integer limit) {
+    public String getFullListFolderInformation(String query, Integer skip, Integer limit) {
         String JsonContent = readLineByLineJava8();
         List<String> listFolders = new ArrayList<>();
 
@@ -200,63 +208,134 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
             query1= query + add;
 
         int counter = 0; // variable which count elements in list
+        int register = 0;
         int skipCounter = 0; // variable which count skip element
         String code = ".*?\\W+\"id\\\": \\\"[0-9]+\\\"";
         Pattern p = Pattern.compile(code);
         Matcher m = p.matcher(JsonContent);
+        String result = "";
+        int limitValue = 0;
         while (m.find())
         {
-            if (counter >= limit)
-                return listFolders;
             int number = 0;
             if(query.matches("[0-9]+"))
             {
                 if(m.group(0).contains(query1)) {
-                 String zmienna = m.group(0);
-                 Integer zmienna1 = zmienna.lastIndexOf(query);
-                 if(Character.isDigit(zmienna.charAt(zmienna1 - 1)) || query.length() == 2)
+                 String value = m.group(0);
+                 Integer expression = value.lastIndexOf(query);
+                 if(Character.isDigit(value.charAt(expression - 1)) || query.length() == 2)
                      number = 2;
                  else
                      number = 1;
 
                     skipCounter++;
                     if (skipCounter > skip && query.length() == number) {
-                        listFolders.add(m.group(0));
                         counter++;
+                        String header = "{\n     " + "\"" + "results" + "\"" + ":" + " " + "[\n        {\n          ";
+                        String value1 = "\"" + "path" + "\"" + ":" + m.group(0);
+                        String[] parts = value1.split("    ");
+                        String value2 = parts[0].replaceAll(": \\{","");
+                        String splits = header + parts[1] +",\n          " + value2 + "        },";
+                        result = result + splits;
+
                     }
                 }
+                if(skip > 0 || limit < 1)
+                    return "[]";
             }
-            if(query.length() >= 3)
+            if(query.matches("[a-zA-Z_0-9]\\w+\\S+"))
             {
                 if(m.group(0).contains(query)) {
                     skipCounter++;
 
                     if (skipCounter > skip) {
-                        listFolders.add(m.group(0));
+                        register++;
+
+                        if(register == 1)
+                        {
+                            if(limitValue >= limit)
+                                break;
+                            String header = "{\n     " + "\"" + "results" + "\"" + ":" + " " + "[\n        {\n          ";
+                            String value1 = "\"" + "path" + "\"" + ":" + m.group(0);
+                            String[] parts = value1.split("    ");
+                            String value2 = parts[0].replaceAll(": \\{","");
+                            String splits = header + parts[1] +",\n          " + value2 + "        },";
+                            result = result + splits;
+                            limitValue++;
+
+                        }
+                        if(register > 1)
+                        {
+                            if(limitValue >= limit)
+                                break;
+                            String header = "\n        {\n          ";
+                            String value1 = "\"" + "path" + "\"" + ":" + m.group(0);
+                            String[] parts = value1.split("    ");
+                            String value2 = parts[0].replaceAll(": \\{","");
+                            String splits = header + parts[1] +",\n          " + value2 + "        },";
+                            result = result + splits;
+                            limitValue++;
+                        }
                         counter++;
                     }
                 }
             }
-
         }
-        return listFolders;
+        if(result.isEmpty())
+            return "\"results\": []";
+        result = result.substring(0,result.length() - 1);
+        result = result + "\n      ]\n}";
+        return result;
     }
 
     @Override
-    public List<String> getFullListFolders() {
+    public String getFullListFolders() {
         String JsonContent = readLineByLineJava8();
-
-        List<String> listFolders = new ArrayList<>();
-
         String code = ".*?\\W+\"id\\\": \\\"[0-9]+\\\"";
+        String code1 = "id\\\": \\\"[0-9]+\\\"";
         Pattern p = Pattern.compile(code);
         Matcher m = p.matcher(JsonContent);
+        Pattern q = Pattern.compile(code1);
+        Matcher w = q.matcher(JsonContent);
+        String finalResult = "";
+        int repeat = 0;
+        int counter = 0; // variable which count numbers of occurance ID in file
+
+        while (w.find())
+            counter++;
+
         while (m.find())
-            listFolders.add(m.group(0));
+        {
+            repeat++;
+            if(repeat == 1)
+            {
+                String header = "{\n     " + "\"" + "results" + "\"" + ":" + " " + "[\n        {\n          ";
+                String value = "\"" + "path" + "\"" + ":" + m.group(0);
+                String[] parts = value.split("    ");
+                String value1 = parts[0].replaceAll(": \\{","");
+                String splits = header + parts[1] +",\n          " + value1 + "        },";
+                finalResult = finalResult + splits;
+            }
+            if(repeat > 1)
+            {
+                String header ="\n        {\n          ";
+                String value = "\"" + "path" + "\"" + ":" + m.group(0);
+                String[] parts = value.split("    ");
+                String value1 = parts[0].replaceAll(": \\{","");
+                String splits = header + parts[1] +",\n          " + value1 + "        },";
+                finalResult = finalResult + splits;
 
-        return listFolders;
+                if(repeat == counter)
+                {
+                   finalResult = finalResult.substring(0,finalResult.length() - 1);
+                   finalResult = finalResult + "\n      ]\n}";
+                }
+
+            }
+
+        }
+        return finalResult;
     }
-
 
     //Function for both parts of the task
     private static String readLineByLineJava8()
