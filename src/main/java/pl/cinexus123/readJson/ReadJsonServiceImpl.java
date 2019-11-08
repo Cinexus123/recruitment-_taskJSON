@@ -171,7 +171,15 @@ public class ReadJsonServiceImpl implements  ReadJsonService {
                 if(finalResult.isEmpty())
                     return "folder with provided type not found";
                 name += finalResult;
-                return name;
+                String add = "    ]\n" + "  },\n" + "}";
+                String endResult1 = name.substring(name.length() - 3, name.length());
+                if(endResult1.contains("},"))
+                {
+                    name = name.substring(0, name.length() - 2) + "  \n";
+                    name += add;
+                }
+
+                return name; //default name
             }
         }
         return "folder with provided ID not found";
