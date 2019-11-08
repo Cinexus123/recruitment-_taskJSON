@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Set;
 
 public interface ReadJsonService {
-    List<String> findAppropriateContentFolders(String query, Integer skip, Integer limit);
-    Set<String> findAllAvailableFolders();
+    String findAppropriateWordContent(String query, Integer skip, Integer limit);
+    String findAllAvailableWords();
 
     String getFullIdFolder(String folderId, String type, Integer skip, Integer limit);
 
